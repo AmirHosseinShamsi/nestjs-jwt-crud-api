@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -52,5 +53,12 @@ export class UserController {
     @Body() partialUpdateUserDto: PartialUpdateUserDto,
   ): Promise<messageInterface> {
     return this.userService.updatePartial(id, partialUpdateUserDto);
+  }
+
+  @Delete('delete/:id')
+  async deleteOne(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<messageInterface> {
+    return this.userService.deleteOne(id);
   }
 }

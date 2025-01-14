@@ -17,7 +17,6 @@ export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
-
   async findAll(): Promise<UserInterface[]> {
     return this.userRepository.createQueryBuilder('user').getMany();
   }
@@ -89,5 +88,22 @@ export class UserService {
       throw new HttpException('something gone wrong!', HttpStatus.BAD_GATEWAY);
     }
     return { message: `the user with id ${id} has been updated successfully` };
+  }
+
+  async deleteOne(id: number): Promise<messageInterface> {
+    const isUserExists = await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.id = :id', { id })
+      .getOne();
+    if (!isUserExists) {
+      throw new NotFoundException('the use not found');
+    }
+    await this.userRepository
+      .createQueryBuilder()
+      .delete()
+      .from(User)
+      .where('id = :id', { id })
+      .execute();
+    return { message: `the user with id ${id} has been removed successfully` };
   }
 }
