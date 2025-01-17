@@ -12,6 +12,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   age: string;
+  @IsNotEmpty()
   @ValidateNested()
   @Type(() => CreateAddressDto)
   address: CreateAddressDto;

@@ -35,7 +35,7 @@ export class UserController {
   @Post('create')
   async createUser(
     @Body() createUserDto: CreateUserDto,
-  ): Promise<messageInterface> {
+  ): Promise<UserInterface> {
     return this.userService.createUser(createUserDto);
   }
 
@@ -43,7 +43,7 @@ export class UserController {
   async updateAll(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
-  ): Promise<messageInterface> {
+  ): Promise<any> {
     return this.userService.updateAll(id, updateUserDto);
   }
 

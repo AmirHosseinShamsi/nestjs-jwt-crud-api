@@ -15,26 +15,29 @@ export class UserService {
   ) {}
 
   async findAll(): Promise<UserInterface[]> {
-    /*return this.userRepository.createQueryBuilder().getMany();*/
-    return this.userRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.address', 'address')
-      .getMany();
+    return this.userRepository.find({
+      relations: {
+        address: true,
+      },
+    });
   }
 
   async findOne(id: number): Promise<UserInterface | null> {
-    const user: UserInterface = await this.userRepository
-      .createQueryBuilder('user')
-      .where('user.id = :id', { id })
-      .leftJoinAndSelect('user.address', 'address')
-      .getOne();
+    const user = await this.userRepository.findOne({
+      relations: {
+        address: true,
+      },
+      where: {
+        id,
+      },
+    });
     if (!user) {
       throw new NotFoundException('the user not found');
     }
     return user;
   }
 
-  async createUser(createUserDto: CreateUserDto): Promise<messageInterface> {
+  async createUser(createUserDto: CreateUserDto): Promise<UserInterface> {
     const { first_name, last_name, age } = createUserDto;
     const { city, street, postal_code } = createUserDto.address;
     const newAddress = new Address();
@@ -46,50 +49,33 @@ export class UserService {
     newUser.last_name = last_name;
     newUser.age = age;
     newUser.address = newAddress;
-    /*const createdUser = await this.userRepository
-      .createQueryBuilder()
-      .insert()
-      .into(User)
-      .values(newUser)
-      .execute();*/
-    const returnedUser: UserInterface = await this.userRepository.save(newUser);
-    console.log(returnedUser);
-    return {
-      message: `the user with id ${1} created successfully`,
-    };
+    return this.userRepository.save(newUser);
   }
 
-  async updateAll(
-    id: number,
-    updateUserDto: UpdateUserDto,
-  ): Promise<messageInterface> {
-    const updateResult = await this.userRepository
-      .createQueryBuilder()
-      .update(User)
-      .set(updateUserDto)
-      .where('id = :id', { id })
-      .execute();
-
-    if (updateResult.affected === 0) {
+  async updateAll(id: number, updateUserDto: UpdateUserDto): Promise<any> {
+    const updated = await this.userRepository.update(id, updateUserDto);
+    console.log(updated);
+    /*if (updated.affected === 0) {
       throw new NotFoundException('The user not found');
     }
     return {
       message: `the user with id ${id} has been updated successfully`,
-    };
+    };*/
   }
 
   async updatePartial(
     id: number,
     partialUpdateUserDto: PartialUpdateUserDto,
   ): Promise<messageInterface> {
-    const updateResult = await this.userRepository
+    /*const updateResult = await this.userRepository
       .createQueryBuilder()
       .update(User)
       .set(partialUpdateUserDto)
       .where('id = :id', { id })
-      .execute();
+      .execute();*/
+    const updated = await this.userRepository.update(id, partialUpdateUserDto);
 
-    if (updateResult.affected === 0) {
+    if (!updated) {
       throw new NotFoundException('The user not found');
     }
     return {
