@@ -21,7 +21,10 @@ export class User {
   @Column()
   age: string;
 
-  @OneToOne(() => Address, { cascade: true })
+  @OneToOne(() => Address, (address) => address.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   address: Address;
 

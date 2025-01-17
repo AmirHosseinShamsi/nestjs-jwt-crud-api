@@ -2,10 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { DeleteResult, Repository } from 'typeorm';
-import { UserInterface, messageInterface } from './interfaces/user.interface';
+import { messageInterface, UserInterface } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PartialUpdateUserDto } from './dto/partial-update-user.dto';
+import { Address } from './entities/address.entity';
 
 @Injectable()
 export class UserService {
@@ -14,13 +15,18 @@ export class UserService {
   ) {}
 
   async findAll(): Promise<UserInterface[]> {
-    return this.userRepository.createQueryBuilder().getMany();
+    /*return this.userRepository.createQueryBuilder().getMany();*/
+    return this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.address', 'address')
+      .getMany();
   }
 
   async findOne(id: number): Promise<UserInterface | null> {
-    const user = await this.userRepository
+    const user: UserInterface = await this.userRepository
       .createQueryBuilder('user')
       .where('user.id = :id', { id })
+      .leftJoinAndSelect('user.address', 'address')
       .getOne();
     if (!user) {
       throw new NotFoundException('the user not found');
@@ -29,14 +35,27 @@ export class UserService {
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<messageInterface> {
-    const createdUser = await this.userRepository
+    const { first_name, last_name, age } = createUserDto;
+    const { city, street, postal_code } = createUserDto.address;
+    const newAddress = new Address();
+    newAddress.city = city;
+    newAddress.street = street;
+    newAddress.postal_code = postal_code;
+    const newUser = new User();
+    newUser.first_name = first_name;
+    newUser.last_name = last_name;
+    newUser.age = age;
+    newUser.address = newAddress;
+    /*const createdUser = await this.userRepository
       .createQueryBuilder()
       .insert()
       .into(User)
-      .values(createUserDto)
-      .execute();
+      .values(newUser)
+      .execute();*/
+    const returnedUser: UserInterface = await this.userRepository.save(newUser);
+    console.log(returnedUser);
     return {
-      message: `the user with id ${createdUser.identifiers[0].id} created successfully`,
+      message: `the user with id ${1} created successfully`,
     };
   }
 
@@ -79,12 +98,13 @@ export class UserService {
   }
 
   async deleteOne(id: number): Promise<messageInterface> {
-    const deletedResult: DeleteResult = await this.userRepository
+    /*const deletedResult: DeleteResult = await this.userRepository
       .createQueryBuilder()
       .delete()
       .from(User)
       .where('id = :id', { id })
-      .execute();
+      .execute();*/
+    const deletedResult: DeleteResult = await this.userRepository.delete(id);
     if (deletedResult.affected === 0) {
       throw new NotFoundException('The user not found');
     }
