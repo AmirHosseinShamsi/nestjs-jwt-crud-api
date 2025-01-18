@@ -21,6 +21,15 @@ export class User {
   @Column()
   age: string;
 
+  @Column({ unique: true })
+  username: string;
+
+  @Column()
+  password: string;
+
+  @Column({ unique: true })
+  email: string;
+
   @OneToOne(() => Address, (address) => address.user, {
     cascade: true,
     onDelete: 'CASCADE',
