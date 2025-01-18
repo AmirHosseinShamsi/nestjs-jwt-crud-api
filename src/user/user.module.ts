@@ -9,5 +9,6 @@ import { Address } from './entities/address.entity';
   imports: [TypeOrmModule.forFeature([User, Address])],
   providers: [UserService],
   controllers: [UserController],
+  exports: [TypeOrmModule], //this code makes sure the userRepository is accessible in other modules
 })
 export class UserModule {}
