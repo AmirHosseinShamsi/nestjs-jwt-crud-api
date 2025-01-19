@@ -48,19 +48,7 @@ export class UserService {
     return user;
   }
 
-  async createUser(createUserDto: CreateUserDto): Promise<any> {
-    /*const { first_name, last_name, age } = createUserDto;
-    const { city, street, postal_code } = createUserDto.address;
-    const newAddress = new Address();
-    newAddress.city = city;
-    newAddress.street = street;
-    newAddress.postal_code = postal_code;
-    const newUser = new User();
-    newUser.first_name = first_name;
-    newUser.last_name = last_name;
-    newUser.age = age;
-    newUser.address = newAddress;
-    return this.userRepository.save(newUser);*/
+  async createUser(createUserDto: CreateUserDto): Promise<UserInterface> {
     const { password, confirmPassword, email, username } = createUserDto;
     const { city, street, postal_code } = createUserDto.address;
     const isUserNameEmailExistence = await this.userRepository
@@ -90,18 +78,18 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
-  async updateAll(id: number, updateUserDto: UpdateUserDto): Promise<any> {
+  /*async updateAll(id: number, updateUserDto: UpdateUserDto): Promise<any> {
     const updated = await this.userRepository.update(id, updateUserDto);
     console.log(updated);
-    /*if (updated.affected === 0) {
+    /!*if (updated.affected === 0) {
       throw new NotFoundException('The user not found');
     }
     return {
       message: `the user with id ${id} has been updated successfully`,
-    };*/
-  }
+    };*!/
+  }*/
 
-  async updatePartial(
+  /*async updatePartial(
     id: number,
     partialUpdateUserDto: PartialUpdateUserDto,
   ): Promise<messageInterface> {
@@ -121,12 +109,12 @@ export class UserService {
   }
 
   async deleteOne(id: number): Promise<messageInterface> {
-    /*const deletedResult: DeleteResult = await this.userRepository
+    /!*const deletedResult: DeleteResult = await this.userRepository
       .createQueryBuilder()
       .delete()
       .from(User)
       .where('id = :id', { id })
-      .execute();*/
+      .execute();*!/
     const deletedResult: DeleteResult = await this.userRepository.delete(id);
     if (deletedResult.affected === 0) {
       throw new NotFoundException('The user not found');
@@ -134,5 +122,5 @@ export class UserService {
     return {
       message: `the user with id ${id} has been removed successfully`,
     };
-  }
+  }*/
 }

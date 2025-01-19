@@ -6,6 +6,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Address } from './address.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class User {
@@ -24,6 +25,7 @@ export class User {
   @Column({ unique: true })
   username: string;
 
+  @Exclude()
   @Column()
   password: string;
 
@@ -37,6 +39,7 @@ export class User {
   @JoinColumn()
   address: Address;
 
+  @Exclude()
   @Column({ default: true })
   is_active: boolean;
 }

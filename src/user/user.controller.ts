@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -9,6 +10,7 @@ import {
   Post,
   Put,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserInterface, messageInterface } from './interfaces/user.interface';
@@ -16,18 +18,20 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PartialUpdateUserDto } from './dto/partial-update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { classToPlain } from 'class-transformer';
 
 @Controller('user')
 export class UserController {
   //this app use global pipe validation
   constructor(private readonly userService: UserService) {}
 
+  /*@UseInterceptors(ClassSerializerInterceptor)*/
   @Get('all')
   async findAll(): Promise<UserInterface[]> {
     return this.userService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
+  /*@UseGuards(JwtAuthGuard)*/
   @Get(':id')
   async findOne(
     @Param('id', ParseIntPipe) id: number,
@@ -35,12 +39,15 @@ export class UserController {
     return this.userService.findOne(id);
   }
 
+  /*@UseInterceptors(ClassSerializerInterceptor)*/
   @Post('create')
-  async createUser(@Body() createUserDto: CreateUserDto): Promise<any> {
+  async createUser(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<UserInterface> {
     return this.userService.createUser(createUserDto);
   }
 
-  @Put('update/:id')
+  /*@Put('update/:id')
   async updateAll(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
@@ -61,5 +68,5 @@ export class UserController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<messageInterface> {
     return this.userService.deleteOne(id);
-  }
+  }*/
 }
