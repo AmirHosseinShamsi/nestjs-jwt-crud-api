@@ -8,12 +8,14 @@ import {
   Patch,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserInterface, messageInterface } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PartialUpdateUserDto } from './dto/partial-update-user.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('user')
 export class UserController {
@@ -25,6 +27,7 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(
     @Param('id', ParseIntPipe) id: number,
