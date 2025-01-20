@@ -1,6 +1,5 @@
 import {
   Body,
-  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -10,36 +9,18 @@ import {
   Post,
   Put,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserInterface, messageInterface } from './interfaces/user.interface';
+import { UserInterface } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PartialUpdateUserDto } from './dto/partial-update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { classToPlain } from 'class-transformer';
 
 @Controller('user')
 export class UserController {
-  //this app use global pipe validation
+  //this app use global pipe validation , class serialize interceptor
   constructor(private readonly userService: UserService) {}
 
-  /*@UseInterceptors(ClassSerializerInterceptor)*/
-  @Get('all')
-  async findAll(): Promise<UserInterface[]> {
-    return this.userService.findAll();
-  }
-
-  /*@UseGuards(JwtAuthGuard)*/
-  @Get(':id')
-  async findOne(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<UserInterface | null> {
-    return this.userService.findOne(id);
-  }
-
-  /*@UseInterceptors(ClassSerializerInterceptor)*/
   @Post('create')
   async createUser(
     @Body() createUserDto: CreateUserDto,
@@ -47,26 +28,32 @@ export class UserController {
     return this.userService.createUser(createUserDto);
   }
 
-  /*@Put('update/:id')
-  async updateAll(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateUserDto: UpdateUserDto,
-  ): Promise<any> {
-    return this.userService.updateAll(id, updateUserDto);
+  @UseGuards(JwtAuthGuard)
+  @Get('all')
+  async findAllUsers(): Promise<UserInterface[]> {
+    return this.userService.findAllUsers();
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  async findUserById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<UserInterface | null> {
+    return this.userService.findUserById(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Patch('update/:id')
-  async updatePartial(
+  async updateUser(
     @Param('id', ParseIntPipe) id: number,
-    @Body() partialUpdateUserDto: PartialUpdateUserDto,
-  ): Promise<messageInterface> {
-    return this.userService.updatePartial(id, partialUpdateUserDto);
+    @Body() partialUpdateUserDto: UpdateUserDto,
+  ): Promise<null> {
+    return this.userService.updateUser(id, partialUpdateUserDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('delete/:id')
-  async deleteOne(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<messageInterface> {
-    return this.userService.deleteOne(id);
-  }*/
+  async deleteUserById(@Param('id', ParseIntPipe) id: number): Promise<null> {
+    return this.userService.deleteUserById(id);
+  }
 }

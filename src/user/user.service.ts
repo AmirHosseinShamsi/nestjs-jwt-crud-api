@@ -7,12 +7,10 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { DeleteResult, Repository } from 'typeorm';
-import { messageInterface, UserInterface } from './interfaces/user.interface';
+import { UserInterface } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PartialUpdateUserDto } from './dto/partial-update-user.dto';
 import * as bcrypt from 'bcryptjs';
-import { Address } from './entities/address.entity';
 
 @Injectable()
 export class UserService {
@@ -25,23 +23,17 @@ export class UserService {
     return await bcrypt.hash(password + salt, 10);
   }
 
-  async findAll(): Promise<UserInterface[]> {
-    return this.userRepository.find({
-      relations: {
-        address: true,
-      },
-    });
+  async findAllUsers(): Promise<UserInterface[]> {
+    return this.userRepository.createQueryBuilder('user').getMany();
   }
 
-  async findOne(id: number): Promise<UserInterface | null> {
-    const user = await this.userRepository.findOne({
-      relations: {
-        address: true,
-      },
-      where: {
-        id,
-      },
-    });
+  async findUserById(id: number): Promise<UserInterface | null> {
+    const user = await this.userRepository
+      .createQueryBuilder()
+      .select('user')
+      .from(User, 'user')
+      .where('user.id = :id', { id })
+      .getOne();
     if (!user) {
       throw new NotFoundException('the user not found');
     }
@@ -50,7 +42,7 @@ export class UserService {
 
   async createUser(createUserDto: CreateUserDto): Promise<UserInterface> {
     const { password, confirmPassword, email, username } = createUserDto;
-    const { city, street, postal_code } = createUserDto.address;
+    /*const { city, street, postal_code } = createUserDto.address;*/
     const isUserNameEmailExistence = await this.userRepository
       .createQueryBuilder('user')
       .where('user.username = :username OR user.email = :email', {
@@ -65,34 +57,22 @@ export class UserService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const hashedPassword = await this.hashPassword(password, email);
-    const newAddress = new Address();
+    const hashedPassword: string = await this.hashPassword(password, email);
+    /*const newAddress = new Address();
     newAddress.city = city;
     newAddress.street = street;
-    newAddress.postal_code = postal_code;
+    newAddress.postal_code = postal_code;*/
     const user = this.userRepository.create({
       ...createUserDto,
-      ...newAddress,
       password: hashedPassword,
     });
     return this.userRepository.save(user);
   }
 
-  /*async updateAll(id: number, updateUserDto: UpdateUserDto): Promise<any> {
-    const updated = await this.userRepository.update(id, updateUserDto);
-    console.log(updated);
-    /!*if (updated.affected === 0) {
-      throw new NotFoundException('The user not found');
-    }
-    return {
-      message: `the user with id ${id} has been updated successfully`,
-    };*!/
-  }*/
-
-  /*async updatePartial(
+  async updateUser(
     id: number,
-    partialUpdateUserDto: PartialUpdateUserDto,
-  ): Promise<messageInterface> {
+    partialUpdateUserDto: UpdateUserDto,
+  ): Promise<null> {
     const updateResult = await this.userRepository
       .createQueryBuilder()
       .update(User)
@@ -103,24 +83,19 @@ export class UserService {
     if (updateResult.affected === 0) {
       throw new NotFoundException('The user not found');
     }
-    return {
-      message: `the user with id ${id} has been updated successfully`,
-    };
+    return null;
   }
 
-  async deleteOne(id: number): Promise<messageInterface> {
-    /!*const deletedResult: DeleteResult = await this.userRepository
+  async deleteUserById(id: number): Promise<null> {
+    const deletedResult: DeleteResult = await this.userRepository
       .createQueryBuilder()
       .delete()
       .from(User)
       .where('id = :id', { id })
-      .execute();*!/
-    const deletedResult: DeleteResult = await this.userRepository.delete(id);
+      .execute();
     if (deletedResult.affected === 0) {
       throw new NotFoundException('The user not found');
     }
-    return {
-      message: `the user with id ${id} has been removed successfully`,
-    };
-  }*/
+    return null;
+  }
 }

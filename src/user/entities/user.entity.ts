@@ -32,12 +32,12 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @OneToOne(() => Address, (address) => address.user, {
+/*  @OneToOne(() => Address, (address) => address.user, {
     cascade: true,
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  address: Address;
+  address: Address;*/
 
   @Exclude()
   @Column({ default: true })

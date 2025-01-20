@@ -11,6 +11,6 @@ export class Address {
   street: string;
   @Column()
   postal_code: string;
-  @OneToOne(() => User, (user) => user.address)
-  user: User;
+  /*@OneToOne(() => User, (user) => user.address)
+  user: User;*/
 }
