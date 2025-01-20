@@ -69,6 +69,7 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
+  //TODO : add password and confirm password to the update user
   async updateUser(
     id: number,
     partialUpdateUserDto: UpdateUserDto,
