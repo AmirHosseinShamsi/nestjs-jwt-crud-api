@@ -1,10 +1,14 @@
-import { ClassSerializerInterceptor, Module } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Module,
+  ValidationPipe,
+} from '@nestjs/common';
 import { UserModule } from './user/user.module';
 import { DatabaseModule } from './database/database.module';
 import 'dotenv/config';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -18,6 +22,14 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
     {
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,
+    },
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({
+        transform: true,
+        forbidNonWhitelisted: true,
+        whitelist: true,
+      }),
     },
   ],
 })
