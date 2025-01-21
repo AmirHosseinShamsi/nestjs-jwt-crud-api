@@ -7,7 +7,6 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  Put,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -15,6 +14,7 @@ import { UserInterface } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Controller('user')
 export class UserController {
@@ -49,6 +49,15 @@ export class UserController {
     @Body() partialUpdateUserDto: UpdateUserDto,
   ): Promise<null> {
     return this.userService.updateUser(id, partialUpdateUserDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('change-password/:id')
+  async changePassword(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updatePasswordDto: UpdatePasswordDto,
+  ): Promise<null> {
+    return this.userService.changePassword(id, updatePasswordDto);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -11,6 +11,7 @@ import { UserInterface } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcryptjs';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class UserService {
@@ -70,20 +71,47 @@ export class UserService {
   }
 
   //TODO : add password and confirm password to the update user
-  async updateUser(
-    id: number,
-    partialUpdateUserDto: UpdateUserDto,
-  ): Promise<null> {
+  async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<null> {
     const updateResult = await this.userRepository
       .createQueryBuilder()
       .update(User)
-      .set(partialUpdateUserDto)
+      .set(updateUserDto)
       .where('id = :id', { id })
       .execute();
 
     if (updateResult.affected === 0) {
       throw new NotFoundException('The user not found');
     }
+    return null;
+  }
+
+  async changePassword(
+    id: number,
+    updatePasswordDto: UpdatePasswordDto,
+  ): Promise<null> {
+    const { password, confirmPassword } = updatePasswordDto;
+    const isPasswordMatch: boolean = password === confirmPassword;
+    if (!isPasswordMatch) {
+      throw new HttpException(
+        'the password does not match',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const userEmail = await this.userRepository
+      .createQueryBuilder('user')
+      .select('user.email')
+      .where('user.id = :id', { id })
+      .getOne();
+    const hashedPassword: string = await this.hashPassword(
+      password,
+      userEmail.email,
+    );
+    await this.userRepository
+      .createQueryBuilder()
+      .update(User)
+      .set({ password: hashedPassword })
+      .where('id = :id', { id })
+      .execute();
     return null;
   }
 
