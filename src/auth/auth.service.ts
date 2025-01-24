@@ -25,13 +25,17 @@ export class AuthService {
     return null;
   }
 
-  async login(
-    user: User,
-  ): Promise<{ access_token: string; refresh_token: string }> {
-    const payload = { email: user.email, sub: user.id };
+  async login(): Promise<{ access_token: string; refresh_token: string }> {
     return {
-      access_token: this.jwtService.sign(payload, { expiresIn: '60s' }),
-      refresh_token: this.jwtService.sign(payload, { expiresIn: '2m' }),
+      //default algorithm is HMAC-SHA256
+      access_token: this.jwtService.sign(
+        { isEncrypted: true },
+        { expiresIn: '5m' },
+      ),
+      refresh_token: this.jwtService.sign(
+        { isEncrypted: true },
+        { expiresIn: '10m' },
+      ),
     };
   }
 
@@ -46,7 +50,7 @@ export class AuthService {
 
       if (!user) throw new UnauthorizedException('invalid refresh token');
 
-      return this.login(user);
+      return this.login();
     } catch (error) {
       throw new UnauthorizedException(error.message);
     }

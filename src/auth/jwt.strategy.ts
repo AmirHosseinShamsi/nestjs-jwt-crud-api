@@ -13,7 +13,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
-    return { userId: payload.sub, username: payload.username };
+  //when jwt decrypted => its data sends to the validate function and this function can send
+  //the data to request object in the route that has AuthGuard
+  async validate() {
+    return { test: 'null' };
   }
 }

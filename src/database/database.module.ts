@@ -14,6 +14,8 @@ import { ConfigService } from '@nestjs/config';
         database: configService.get('DB_NAME'),
         autoLoadEntities: true, //instead of this we can use entity option
         synchronize: true,
+        logging: true, // Enable query logging
+        maxQueryExecutionTime: 2, // Log queries that take longer than 1000ms
       }),
       inject: [ConfigService],
     }),
